@@ -107,7 +107,7 @@ public class PersonRepositoryArrayList implements IPersonRepository {
 
     @Override
     public List<Person> findAll() {
-        return new ArrayList<>(people); // Retorna cópia defensiva
+        return new ArrayList<>(people);
     }
 
     @Override
