@@ -1,4 +1,4 @@
-package com.bluefox.Pizzeria.model;
+package com.bluefox.Pizzeria.model.people;
 
 import lombok.*;
 import lombok.experimental.SuperBuilder;
