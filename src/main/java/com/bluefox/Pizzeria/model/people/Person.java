@@ -17,7 +17,7 @@ public class Person {
 
     @Builder.Default
     private UUID id = UUID.randomUUID();
-    private String fullName;
+    private String name;
     private String phoneNumber;
     private String email;
     private String password;
