@@ -15,8 +15,8 @@ import java.util.UUID;
 @SuperBuilder
 public class OrderItem {
 
-    private UUID foodId;
-    private String foodName;
+    private UUID itemId;
+    private String itemName;
     private int quantity;
     private BigDecimal unitPrice;
 
