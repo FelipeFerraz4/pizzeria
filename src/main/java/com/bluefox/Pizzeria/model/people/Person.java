@@ -4,6 +4,7 @@ import lombok.*;
 import lombok.experimental.SuperBuilder;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 /**
@@ -13,7 +14,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @SuperBuilder
-public class Person {
+public abstract class Person {
 
     @Builder.Default
     private UUID id = UUID.randomUUID();
@@ -27,5 +28,5 @@ public class Person {
     @Builder.Default
     private boolean active = true;
     @Builder.Default
-    private LocalDate accountCreationDate = LocalDate.now();
+    private LocalDateTime accountCreationDate = LocalDateTime.now();
 }

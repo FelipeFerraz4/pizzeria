@@ -4,6 +4,7 @@ import lombok.*;
 import lombok.experimental.SuperBuilder;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -20,7 +21,7 @@ public class Client extends Person {
 
     private LocalDate birthday;
     @Builder.Default
-    private LocalDate dateLastPurchase = null;
+    private LocalDateTime dateLastPurchase = null;
     @Builder.Default
     private List<UUID> orders = new ArrayList<>();
     @Builder.Default

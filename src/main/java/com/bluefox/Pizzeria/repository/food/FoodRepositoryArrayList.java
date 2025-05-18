@@ -2,6 +2,7 @@ package com.bluefox.Pizzeria.repository.food;
 
 import com.bluefox.Pizzeria.interfaces.IFoodRepository;
 import com.bluefox.Pizzeria.model.food.Food;
+import org.springframework.stereotype.Repository;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -10,6 +11,7 @@ import java.util.NoSuchElementException;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+@Repository("foodArrayList")
 public class FoodRepositoryArrayList implements IFoodRepository {
 
     private final List<Food> foods = new ArrayList<>();

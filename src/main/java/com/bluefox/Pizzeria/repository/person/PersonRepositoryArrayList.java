@@ -2,12 +2,14 @@ package com.bluefox.Pizzeria.repository.person;
 
 import com.bluefox.Pizzeria.interfaces.IPersonRepository;
 import com.bluefox.Pizzeria.model.people.Person;
+import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.UUID;
 
+@Repository("personArrayList")
 public class PersonRepositoryArrayList implements IPersonRepository {
 
     private final List<Person> people = new ArrayList<>();
@@ -23,6 +25,18 @@ public class PersonRepositoryArrayList implements IPersonRepository {
 
         if (exists) {
             throw new IllegalStateException("Pessoa com ID '" + object.getId() + "' já existe.");
+        }
+
+        boolean emailExists = people.stream()
+                .anyMatch(p -> p.getEmail().equalsIgnoreCase(object.getEmail()));
+        if (emailExists) {
+            throw new IllegalStateException("Email '" + object.getEmail() + "' já está em uso.");
+        }
+
+        boolean phoneNumberExists = people.stream()
+                .anyMatch(p -> p.getPhoneNumber().equals(object.getPhoneNumber()));
+        if (phoneNumberExists) {
+            throw new IllegalStateException("Número de telefone '" + object.getPhoneNumber() + "' já está em uso.");
         }
 
         people.add(object);

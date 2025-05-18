@@ -13,7 +13,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @SuperBuilder
-public class Food {
+public abstract class Food {
 
     @Builder.Default
     private UUID id = UUID.randomUUID();

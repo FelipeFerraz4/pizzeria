@@ -3,6 +3,7 @@ package com.bluefox.Pizzeria.repository.order;
 import com.bluefox.Pizzeria.interfaces.IOrderRepository;
 import com.bluefox.Pizzeria.model.order.Order;
 import com.bluefox.Pizzeria.model.order.OrderStatus;
+import org.springframework.stereotype.Repository;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -11,6 +12,7 @@ import java.util.NoSuchElementException;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+@Repository("orderArrayList")
 public class OrderRepositoryArrayList implements IOrderRepository {
 
     private final List<Order> orders = new ArrayList<>();
