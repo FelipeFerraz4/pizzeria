@@ -84,8 +84,35 @@ public class FoodRepositoryArrayList implements IFoodRepository {
     }
 
     @Override
-    public List<Food> findAll() {
-        return new ArrayList<>(foods);
+    public List<Food> findBypriceRange(BigDecimal minPrice, BigDecimal maxPrice) throws IllegalArgumentException, NoSuchElementException {
+        if (minPrice == null || maxPrice == null || minPrice.compareTo(BigDecimal.ZERO) < 0 || maxPrice.compareTo(BigDecimal.ZERO) < 0 || minPrice.compareTo(maxPrice) > 0) {
+            throw new IllegalArgumentException("Faixa de preço inválida.");
+        }
+
+        List<Food> result = foods.stream()
+                .filter(f -> f.getPrice() != null &&
+                        f.getPrice().compareTo(minPrice) >= 0 &&
+                        f.getPrice().compareTo(maxPrice) <= 0)
+                .collect(Collectors.toList());
+
+        if (result.isEmpty()) {
+            throw new NoSuchElementException("Nenhuma comida encontrada na faixa de preço especificada.");
+        }
+
+        return result;
+    }
+
+    @Override
+    public List<Food> findByNotAvailable() throws IllegalArgumentException, NoSuchElementException {
+        List<Food> result = foods.stream()
+                .filter(f -> !f.isAvailable())
+                .collect(Collectors.toList());
+
+        if (result.isEmpty()) {
+            throw new NoSuchElementException("Todas as comidas estão disponíveis.");
+        }
+
+        return result;
     }
 
     @Override
@@ -106,35 +133,8 @@ public class FoodRepositoryArrayList implements IFoodRepository {
     }
 
     @Override
-    public List<Food> findBypriceRange(BigDecimal minPrice, BigDecimal maxPrice) throws IllegalArgumentException, NoSuchElementException {
-        if (minPrice == null || maxPrice == null || minPrice.compareTo(BigDecimal.ZERO) < 0 || maxPrice.compareTo(BigDecimal.ZERO) < 0 || minPrice.compareTo(maxPrice) > 0) {
-            throw new IllegalArgumentException("Faixa de preço inválida.");
-        }
-
-        List<Food> result = foods.stream()
-                .filter(f -> f.getPrice() != null &&
-                        f.getPrice().compareTo(minPrice) >= 0 &&
-                        f.getPrice().compareTo(maxPrice) <= 0)
-                .collect(Collectors.toList());
-
-        if (result.isEmpty()) {
-            throw new NoSuchElementException("Nenhuma comida encontrada na faixa de preço especificada.");
-        }
-
-        return result;
+    public List<Food> findAll() {
+        return new ArrayList<>(foods);
     }
 
-
-    @Override
-    public List<Food> findByNotAvailable() throws IllegalArgumentException, NoSuchElementException {
-        List<Food> result = foods.stream()
-                .filter(f -> !f.isAvailable())
-                .collect(Collectors.toList());
-
-        if (result.isEmpty()) {
-            throw new NoSuchElementException("Todas as comidas estão disponíveis.");
-        }
-
-        return result;
-    }
 }

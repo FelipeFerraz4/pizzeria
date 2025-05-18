@@ -12,15 +12,15 @@ public enum OrderStatus {
     DELIVERED("Entregue"),
     CANCELED("Cancelado");
 
-    private final String labelPt;
+    private final String status;
 
-    OrderStatus(String labelPt) {
-        this.labelPt = labelPt;
+    OrderStatus(String status) {
+        this.status = status;
     }
 
     public static OrderStatus fromPortuguese(String pt) {
         for (OrderStatus status : OrderStatus.values()) {
-            if (status.labelPt.equalsIgnoreCase(pt.trim())) {
+            if (status.status.equalsIgnoreCase(pt.trim())) {
                 return status;
             }
         }

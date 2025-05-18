@@ -106,11 +106,6 @@ public class PersonRepositoryArrayList implements IPersonRepository {
     }
 
     @Override
-    public List<Person> findAll() {
-        return new ArrayList<>(people);
-    }
-
-    @Override
     public List<Person> findByType(Class<?> clazz) throws IllegalArgumentException, NoSuchElementException {
         if (clazz == null) {
             throw new IllegalArgumentException("Classe não pode ser nula.");
@@ -125,5 +120,10 @@ public class PersonRepositoryArrayList implements IPersonRepository {
         }
 
         return result;
+    }
+
+    @Override
+    public List<Person> findAll() {
+        return new ArrayList<>(people);
     }
 }
