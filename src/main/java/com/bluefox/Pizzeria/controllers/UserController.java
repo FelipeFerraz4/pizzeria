@@ -1,6 +1,6 @@
 package com.bluefox.Pizzeria.controllers;
 
-import com.bluefox.Pizzeria.dtos.CreateUserDTO;
+import com.bluefox.Pizzeria.dtos.CreateClientDTO;
 import com.bluefox.Pizzeria.model.people.Client;
 import com.bluefox.Pizzeria.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,7 +32,7 @@ public class UserController {
     }
 
     @PostMapping
-    public ResponseEntity<Client> createUser(@RequestBody CreateUserDTO dto) {
+    public ResponseEntity<Client> createUser(@RequestBody CreateClientDTO dto) {
         try {
             Client client = userService.createUser(dto);
             URI location = URI.create("/users/" + client.getId());

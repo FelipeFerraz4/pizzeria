@@ -55,15 +55,18 @@ public class PersonRepositoryArrayList implements IPersonRepository {
     }
 
     @Override
-    public Person findByName(String username) throws IllegalArgumentException, NoSuchElementException {
+    public List<Person> findByName(String username) throws IllegalArgumentException, NoSuchElementException {
         if (username == null || username.isBlank()) {
             throw new IllegalArgumentException("Nome de usuário não pode ser nulo ou vazio.");
         }
 
-        return people.stream()
+        List<Person> result = people.stream()
                 .filter(p -> username.equalsIgnoreCase(p.getName()))
-                .findFirst()
-                .orElseThrow(() -> new NoSuchElementException("Pessoa com nome '" + username + "' não encontrada."));
+                .toList();
+        if (result.isEmpty()) {
+            throw new NoSuchElementException("Pessoa com nome '" + username + "' não encontrada.");
+        }
+        return result;
     }
 
     @Override
@@ -112,12 +115,18 @@ public class PersonRepositoryArrayList implements IPersonRepository {
             throw new IllegalArgumentException("ID não pode ser nulo.");
         }
 
-        boolean removed = people.removeIf(p -> p.getId().equals(id));
+        Person person = people.stream()
+                .filter(p -> p.getId().equals(id))
+                .findFirst()
+                .orElseThrow(() -> new NoSuchElementException("Pessoa com ID '" + id + "' não encontrada."));
 
-        if (!removed) {
-            throw new NoSuchElementException("Pessoa com ID '" + id + "' não encontrada para exclusão.");
+        if (!person.isActive()) {
+            throw new IllegalStateException("Pessoa com ID '" + id + "' já está inativa.");
         }
+
+        person.setActive(false);
     }
+
 
     @Override
     public List<Person> findByType(Class<?> clazz) throws IllegalArgumentException, NoSuchElementException {
