@@ -23,4 +23,5 @@ public abstract class Food {
     @Builder.Default
     private boolean available = true;
     private String category;
+    private String imageUrl;
 }
