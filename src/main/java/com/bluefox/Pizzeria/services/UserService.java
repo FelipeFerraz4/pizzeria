@@ -9,9 +9,12 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.UUID;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
+@Slf4j
 public class UserService {
 
     private final IPersonRepository repository;
@@ -38,31 +41,7 @@ public class UserService {
         return (Client) repository.findById(id);
     }
 
-    public Client getUserByEmail(String email) {
-        return (Client) repository.findByEmail(email);
-    }
-
-    public Client getUserByPhoneNumber(String phoneNumber) {
-        return (Client) repository.findByPhoneNumber(phoneNumber);
-    }
-
-    public List<Person> getUserByName(String name) {
-        return repository.findByName(name);
-    }
-
-    public List<Person> getUserByType(Class<?> clazz) {
-        return repository.findByType(clazz);
-    }
-
-    public List<Person> getAllUsers() {
-        return repository.findAll();
-    }
-
-    public void deleteUserById(UUID id) {
-        repository.deleteByID(id);
-    }
-
-    public void updateUserById(UUID id, UpdateClientDTO dto) {
+    public Client updateClient(UUID id, UpdateClientDTO dto) throws IllegalArgumentException, NoSuchElementException {
         Client client = (Client) repository.findById(id);
         client.setName(dto.name());
         client.setPhoneNumber(dto.phoneNumber());
@@ -70,5 +49,35 @@ public class UserService {
         client.setAddress(dto.address());
         client.setNotes(dto.notes());
         repository.updateById(client);
+        return client;
     }
+
+    public void deleteUserById(UUID id) throws IllegalArgumentException, NoSuchElementException {
+        repository.deleteByID(id);
+    }
+
+    public Client getUserByEmail(String email) throws IllegalArgumentException, NoSuchElementException {
+        return (Client) repository.findByEmail(email);
+    }
+
+    public Client getUserByPhoneNumber(String phoneNumber) throws IllegalArgumentException, NoSuchElementException {
+        return (Client) repository.findByPhoneNumber(phoneNumber);
+    }
+
+    public List<Person> getUserByName(String name) throws IllegalArgumentException, NoSuchElementException {
+        return repository.findByName(name);
+    }
+
+    public List<Client> getClients() throws IllegalArgumentException, NoSuchElementException {
+        return repository.findByType(Client.class)
+                .stream()
+                .filter(Client.class::isInstance)
+                .map(Client.class::cast)
+                .toList();
+    }
+
+    public List<Person> getAllUsers() {
+        return repository.findAll();
+    }
+
 }

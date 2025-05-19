@@ -61,7 +61,8 @@ public class PersonRepositoryArrayList implements IPersonRepository {
         }
 
         List<Person> result = people.stream()
-                .filter(p -> username.equalsIgnoreCase(p.getName()))
+                .filter(Person::isActive)
+                .filter(p -> p.getName().contains(username))
                 .toList();
         if (result.isEmpty()) {
             throw new NoSuchElementException("Pessoa com nome '" + username + "' não encontrada.");
@@ -135,6 +136,7 @@ public class PersonRepositoryArrayList implements IPersonRepository {
         }
 
         List<Person> result = people.stream()
+                .filter(Person::isActive)
                 .filter(clazz::isInstance)
                 .toList();
 
