@@ -52,7 +52,7 @@ public class FoodRepositoryArrayList implements IFoodRepository {
 
         List<Food> result = foods.stream()
                 .filter(Food::isAvailable)
-                .filter(f -> f.getName().contains(name))
+                .filter(f -> f.getName().toLowerCase().contains(name.toLowerCase()))
                 .toList();
 
         if (result.isEmpty()) {
@@ -123,6 +123,19 @@ public class FoodRepositoryArrayList implements IFoodRepository {
 
         if (result.isEmpty()) {
             throw new NoSuchElementException("Todas as comidas estão disponíveis.");
+        }
+
+        return result;
+    }
+
+    @Override
+    public List<Food> findByAvailable() throws IllegalArgumentException, NoSuchElementException {
+        List<Food> result = foods.stream()
+                .filter(Food::isAvailable)
+                .collect(Collectors.toList());
+
+        if (result.isEmpty()) {
+            throw new NoSuchElementException("Nenhuma comida disponível encontrada.");
         }
 
         return result;

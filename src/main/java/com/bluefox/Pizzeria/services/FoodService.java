@@ -41,7 +41,11 @@ public class FoodService {
         return pizza;
     }
 
-    public Pizza getFoodById(UUID id) throws IllegalArgumentException, NoSuchElementException {
+    public Food getFoodById(UUID id) throws IllegalArgumentException, NoSuchElementException {
+        return foodRepository.findById(id);
+    }
+
+    public Pizza getPizzaById(UUID id) throws IllegalArgumentException, NoSuchElementException {
         return (Pizza) foodRepository.findById(id);
     }
 
@@ -82,7 +86,11 @@ public class FoodService {
         return foodRepository.findByPriceRange(minPrice, maxPrice);
     }
 
-    public List<Food> getNotAvailableFood() throws IllegalArgumentException, NoSuchElementException {
+    public List<Food> getUnavailableFood() throws IllegalArgumentException, NoSuchElementException {
         return foodRepository.findByNotAvailable();
+    }
+
+    public List<Food> getAvailableFood() throws IllegalArgumentException, NoSuchElementException {
+        return foodRepository.findByAvailable();
     }
 }
