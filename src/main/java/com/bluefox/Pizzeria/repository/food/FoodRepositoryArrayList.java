@@ -45,15 +45,20 @@ public class FoodRepositoryArrayList implements IFoodRepository {
     }
 
     @Override
-    public Food findByName(String name) throws IllegalArgumentException, NoSuchElementException {
+    public List<Food> findByName(String name) throws IllegalArgumentException, NoSuchElementException {
         if (name == null || name.isBlank()) {
             throw new IllegalArgumentException("Nome não pode ser nulo ou vazio.");
         }
 
-        return foods.stream()
-                .filter(f -> name.equalsIgnoreCase(f.getName()))
-                .findFirst()
-                .orElseThrow(() -> new NoSuchElementException("Comida com nome '" + name + "' não encontrada."));
+        List<Food> result = foods.stream()
+                .filter(Food::isAvailable)
+                .filter(f -> f.getName().contains(name))
+                .toList();
+
+        if (result.isEmpty()) {
+            throw new NoSuchElementException("Comida com nome '" + name + "' não encontrada.");
+        }
+        return result;
     }
 
     @Override
@@ -78,20 +83,26 @@ public class FoodRepositoryArrayList implements IFoodRepository {
             throw new IllegalArgumentException("ID não pode ser nulo.");
         }
 
-        boolean removed = foods.removeIf(f -> f.getId().equals(id));
+        Food food = foods.stream()
+                .filter(f -> f.getId().equals(id))
+                .findFirst()
+                .orElseThrow(() -> new NoSuchElementException("Comida com ID '" + id + "' não encontrada."));
 
-        if (!removed) {
-            throw new NoSuchElementException("Comida com ID '" + id + "' não encontrada para exclusão.");
+        if (!food.isAvailable()) {
+            throw new IllegalStateException("Comida com ID '" + id + "' já está inativa.");
         }
+
+        food.setAvailable(false);
     }
 
     @Override
-    public List<Food> findBypriceRange(BigDecimal minPrice, BigDecimal maxPrice) throws IllegalArgumentException, NoSuchElementException {
+    public List<Food> findByPriceRange(BigDecimal minPrice, BigDecimal maxPrice) throws IllegalArgumentException, NoSuchElementException {
         if (minPrice == null || maxPrice == null || minPrice.compareTo(BigDecimal.ZERO) < 0 || maxPrice.compareTo(BigDecimal.ZERO) < 0 || minPrice.compareTo(maxPrice) > 0) {
             throw new IllegalArgumentException("Faixa de preço inválida.");
         }
 
         List<Food> result = foods.stream()
+                .filter(Food::isAvailable)
                 .filter(f -> f.getPrice() != null &&
                         f.getPrice().compareTo(minPrice) >= 0 &&
                         f.getPrice().compareTo(maxPrice) <= 0)
@@ -124,6 +135,7 @@ public class FoodRepositoryArrayList implements IFoodRepository {
         }
 
         List<Food> result = foods.stream()
+                .filter(Food::isAvailable)
                 .filter(clazz::isInstance)
                 .collect(Collectors.toList());
 

@@ -18,8 +18,6 @@ public class Pizza extends Food {
 
     private Size size;
     @Builder.Default
-    private List<String> flavors = new ArrayList<>();
-    @Builder.Default
     private List<String> ingredients = new ArrayList<>();
     @Builder.Default
     private String crustFlavor = "Normal";

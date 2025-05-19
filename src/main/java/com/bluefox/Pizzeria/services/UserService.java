@@ -71,7 +71,6 @@ public class UserService {
     public List<Client> getClients() throws IllegalArgumentException, NoSuchElementException {
         return repository.findByType(Client.class)
                 .stream()
-                .filter(Client.class::isInstance)
                 .map(Client.class::cast)
                 .toList();
     }

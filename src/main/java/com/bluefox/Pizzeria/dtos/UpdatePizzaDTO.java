@@ -1,13 +1,12 @@
 package com.bluefox.Pizzeria.dtos;
 
-import com.bluefox.Pizzeria.model.food.Size;
-
+import java.math.BigDecimal;
 import java.util.List;
 
 public record UpdatePizzaDTO(
         String name,
         String description,
-        Double price,
+        BigDecimal price,
         String imageUrl,
         List<String> ingredients
 ) {
