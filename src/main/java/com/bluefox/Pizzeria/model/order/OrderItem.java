@@ -15,7 +15,8 @@ import java.util.UUID;
 @SuperBuilder
 public class OrderItem {
 
-    private UUID itemId;
+    @Builder.Default
+    private UUID itemId = UUID.randomUUID();
     private String itemName;
     private int quantity;
     private BigDecimal unitPrice;

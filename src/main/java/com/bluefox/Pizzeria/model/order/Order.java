@@ -30,5 +30,5 @@ public class Order {
     private OrderStatus status = OrderStatus.PENDING;
     private BigDecimal totalPrice;
     private String notes;
-    private UUID deliveryPersonId;
+//    private UUID deliveryPersonId;
 }

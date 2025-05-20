@@ -5,7 +5,7 @@ import com.bluefox.Pizzeria.dtos.UpdatePizzaDTO;
 import com.bluefox.Pizzeria.interfaces.IFoodRepository;
 import com.bluefox.Pizzeria.model.food.Food;
 import com.bluefox.Pizzeria.model.food.Pizza;
-import com.bluefox.Pizzeria.model.people.Client;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -13,12 +13,11 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.UUID;
 
-
 @Service
 public class FoodService {
     private final IFoodRepository foodRepository;
 
-    public FoodService(IFoodRepository foodRepository) {
+    public FoodService(@Qualifier("foodArrayList") IFoodRepository foodRepository) {
         this.foodRepository = foodRepository;
     }
 
