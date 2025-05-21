@@ -6,10 +6,7 @@ import com.bluefox.Pizzeria.model.order.OrderStatus;
 import org.springframework.stereotype.Repository;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Repository("orderArrayList")
@@ -45,13 +42,15 @@ public class OrderRepositoryArrayList implements IOrderRepository {
     @Override
     public Order findByCustomerId(UUID customerId) throws IllegalArgumentException, NoSuchElementException {
         if (customerId == null) {
-            throw new IllegalArgumentException("ID do cliente não pode ser nulo ou vazio.");
+            throw new IllegalArgumentException("O ID do cliente não pode ser nulo.");
         }
 
         return orders.stream()
                 .filter(o -> customerId.equals(o.getClientId()))
-                .findFirst()
-                .orElseThrow(() -> new NoSuchElementException("Pedido com ID do cliente '" + customerId + "' não encontrado."));
+                .max(Comparator.comparing(Order::getCreatedAt))
+                .orElseThrow(() ->
+                        new NoSuchElementException("Nenhum pedido encontrado para o cliente com ID '" + customerId + "'.")
+                );
     }
 
     @Override
@@ -80,7 +79,7 @@ public class OrderRepositoryArrayList implements IOrderRepository {
 
         return orders.stream()
                 .filter(o -> deliveryAddress.equalsIgnoreCase(o.getDeliveryAddress()))
-                .findFirst()
+                .max(Comparator.comparing(Order::getCreatedAt))
                 .orElseThrow(() -> new NoSuchElementException("Nenhum pedido com endereço '" + deliveryAddress + "' encontrado."));
     }
 
@@ -104,11 +103,13 @@ public class OrderRepositoryArrayList implements IOrderRepository {
     public void deleteByID(UUID id) throws IllegalArgumentException, NoSuchElementException {
         if (id == null) throw new IllegalArgumentException("ID não pode ser nulo.");
 
-        boolean removed = orders.removeIf(o -> o.getId().equals(id));
+        Order order = orders.stream()
+                .filter(o -> id.equals(o.getClientId()))
+                .findFirst()
+                .orElseThrow(() -> new NoSuchElementException("Pedido com ID '" + id + "' não encontrado."));
 
-        if (!removed) {
-            throw new NoSuchElementException("Pedido com ID '" + id + "' não encontrado para exclusão.");
-        }
+        order.setStatus(OrderStatus.CANCELED);
+        updateById(order);
     }
 
     @Override
