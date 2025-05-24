@@ -104,7 +104,7 @@ public class OrderRepositoryArrayList implements IOrderRepository {
         if (id == null) throw new IllegalArgumentException("ID não pode ser nulo.");
 
         Order order = orders.stream()
-                .filter(o -> id.equals(o.getClientId()))
+                .filter(o -> id.equals(o.getId()))
                 .findFirst()
                 .orElseThrow(() -> new NoSuchElementException("Pedido com ID '" + id + "' não encontrado."));
 
@@ -128,11 +128,12 @@ public class OrderRepositoryArrayList implements IOrderRepository {
                 .collect(Collectors.toList());
 
         if (result.isEmpty()) {
-            throw new NoSuchElementException("Nenhum pedido encontrado na faixa de preço especificada.");
+            return Collections.emptyList();
         }
 
         return result;
     }
+
 
     @Override
     public List<Order> findByPaymentMethod(String paymentMethod) throws IllegalArgumentException, NoSuchElementException {
