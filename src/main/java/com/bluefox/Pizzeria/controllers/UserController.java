@@ -1,10 +1,12 @@
 package com.bluefox.Pizzeria.controllers;
 
+import com.bluefox.Pizzeria.controllers.docs.UserControllerDocs;
 import com.bluefox.Pizzeria.dtos.CreateClientDTO;
 import com.bluefox.Pizzeria.dtos.UpdateClientDTO;
 import com.bluefox.Pizzeria.model.people.Client;
 import com.bluefox.Pizzeria.model.people.Person;
 import com.bluefox.Pizzeria.services.UserService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -16,132 +18,142 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/users")
-public class UserController {
+@Tag(name = "Users", description = "Endpoints para gerenciamento de usuários")
+public class UserController implements UserControllerDocs {
 
     @Autowired
     private UserService userService;
 
-    @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<?>> getUserById(@PathVariable String id) {
-        try {
-            UUID uuid = UUID.fromString(id);
-            Client client = userService.getUserById(uuid);
-            return ResponseEntity.ok(ApiResponse.success(client));
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(ApiResponse.error("ID inválido"));
-        } catch (NoSuchElementException e) {
-            return ResponseEntity.status(404).body(ApiResponse.error("Usuário não encontrado"));
-        } catch (Exception e) {
-            return ResponseEntity.status(500).body(ApiResponse.error("Erro interno"));
-        }
-    }
-
     @PostMapping
-    public ResponseEntity<ApiResponse<?>> createUser(@RequestBody CreateClientDTO dto) {
+    @Override
+    public ResponseEntity<ApiResponses<?>> createUser(@RequestBody CreateClientDTO dto) {
         try {
             Client client = userService.createUser(dto);
             URI location = URI.create("/users/" + client.getId());
-            return ResponseEntity.created(location).body(ApiResponse.success(client));
+            return ResponseEntity.created(location).body(ApiResponses.success(client));
         } catch (IllegalArgumentException | IllegalStateException e) {
-            return ResponseEntity.badRequest().body(ApiResponse.error("Dados inválidos"));
+            return ResponseEntity.badRequest().body(ApiResponses.error("Dados inválidos"));
         } catch (Exception e) {
-            return ResponseEntity.status(500).body(ApiResponse.error("Erro interno"));
+            return ResponseEntity.status(500).body(ApiResponses.error("Erro interno"));
         }
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ApiResponse<?>> updateUser(@PathVariable String id, @RequestBody UpdateClientDTO dto) {
+    @Override
+    public ResponseEntity<ApiResponses<?>> updateUser(@PathVariable String id, @RequestBody UpdateClientDTO dto) {
         try {
             UUID uuid = UUID.fromString(id);
             Client client = userService.updateClient(uuid, dto);
-            return ResponseEntity.ok(ApiResponse.success(client));
+            return ResponseEntity.ok(ApiResponses.success(client));
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(ApiResponse.error("ID inválido"));
+            return ResponseEntity.badRequest().body(ApiResponses.error("ID inválido"));
         } catch (NoSuchElementException e) {
-            return ResponseEntity.status(404).body(ApiResponse.error("Usuário não encontrado"));
+            return ResponseEntity.status(404).body(ApiResponses.error("Usuário não encontrado"));
         } catch (Exception e) {
-            return ResponseEntity.status(500).body(ApiResponse.error("Erro interno"));
+            return ResponseEntity.status(500).body(ApiResponses.error("Erro interno"));
         }
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<ApiResponse<?>> deleteUser(@PathVariable String id) {
+    @Override
+    public ResponseEntity<ApiResponses<?>> deleteUser(@PathVariable String id) {
         try {
             UUID uuid = UUID.fromString(id);
             userService.deleteUserById(uuid);
             return ResponseEntity.noContent().build();
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(ApiResponse.error("ID inválido"));
+            return ResponseEntity.badRequest().body(ApiResponses.error("ID inválido"));
         } catch (NoSuchElementException e) {
-            return ResponseEntity.status(404).body(ApiResponse.error("Usuário não encontrado"));
+            return ResponseEntity.status(404).body(ApiResponses.error("Usuário não encontrado"));
         } catch (Exception e) {
-            return ResponseEntity.status(500).body(ApiResponse.error("Erro interno"));
+            return ResponseEntity.status(500).body(ApiResponses.error("Erro interno"));
+        }
+    }
+
+    @GetMapping("/{id}")
+    @Override
+    public ResponseEntity<ApiResponses<?>> getUserById(@PathVariable String id) {
+        try {
+            UUID uuid = UUID.fromString(id);
+            Client client = userService.getUserById(uuid);
+            return ResponseEntity.ok(ApiResponses.success(client));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(ApiResponses.error("ID inválido"));
+        } catch (NoSuchElementException e) {
+            return ResponseEntity.status(404).body(ApiResponses.error("Usuário não encontrado"));
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(ApiResponses.error("Erro interno"));
         }
     }
 
     @GetMapping
-    public ResponseEntity<ApiResponse<?>> getAllUsers() {
+    @Override
+    public ResponseEntity<ApiResponses<?>> getAllUsers() {
         try {
             List<Person> people = userService.getAllUsers();
-            return ResponseEntity.ok(ApiResponse.successWithCount(people, people.size()));
+            return ResponseEntity.ok(ApiResponses.successWithCount(people, people.size()));
         } catch (Exception e) {
-            return ResponseEntity.status(500).body(ApiResponse.error("Erro interno"));
+            return ResponseEntity.status(500).body(ApiResponses.error("Erro interno"));
         }
     }
 
     @GetMapping("/email/{email}")
-    public ResponseEntity<ApiResponse<?>> getUserByEmail(@PathVariable String email) {
+    @Override
+    public ResponseEntity<ApiResponses<?>> getUserByEmail(@PathVariable String email) {
         try {
             Client client = userService.getUserByEmail(email);
-            return ResponseEntity.ok(ApiResponse.success(client));
+            return ResponseEntity.ok(ApiResponses.success(client));
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(ApiResponse.error("Email inválido"));
+            return ResponseEntity.badRequest().body(ApiResponses.error("Email inválido"));
         } catch (NoSuchElementException e) {
-            return ResponseEntity.status(404).body(ApiResponse.error("Usuário não encontrado"));
+            return ResponseEntity.status(404).body(ApiResponses.error("Usuário não encontrado"));
         } catch (Exception e) {
-            return ResponseEntity.status(500).body(ApiResponse.error("Erro interno"));
+            return ResponseEntity.status(500).body(ApiResponses.error("Erro interno"));
         }
     }
 
     @GetMapping("/phone/{phoneNumber}")
-    public ResponseEntity<ApiResponse<?>> getUserByPhoneNumber(@PathVariable String phoneNumber) {
+    @Override
+    public ResponseEntity<ApiResponses<?>> getUserByPhoneNumber(@PathVariable String phoneNumber) {
         try {
             Client client = userService.getUserByPhoneNumber(phoneNumber);
-            return ResponseEntity.ok(ApiResponse.success(client));
+            return ResponseEntity.ok(ApiResponses.success(client));
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(ApiResponse.error("Telefone inválido"));
+            return ResponseEntity.badRequest().body(ApiResponses.error("Telefone inválido"));
         } catch (NoSuchElementException e) {
-            return ResponseEntity.status(404).body(ApiResponse.error("Usuário não encontrado"));
+            return ResponseEntity.status(404).body(ApiResponses.error("Usuário não encontrado"));
         } catch (Exception e) {
-            return ResponseEntity.status(500).body(ApiResponse.error("Erro interno"));
+            return ResponseEntity.status(500).body(ApiResponses.error("Erro interno"));
         }
     }
 
     @GetMapping("/name/{name}")
-    public ResponseEntity<ApiResponse<?>> getUserByName(@PathVariable String name) {
+    @Override
+    public ResponseEntity<ApiResponses<?>> getUserByName(@PathVariable String name) {
         try {
             List<Person> people = userService.getUserByName(name);
-            return ResponseEntity.ok(ApiResponse.successWithCount(people, people.size()));
+            return ResponseEntity.ok(ApiResponses.successWithCount(people, people.size()));
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(ApiResponse.error("Nome inválido"));
+            return ResponseEntity.badRequest().body(ApiResponses.error("Nome inválido"));
         } catch (NoSuchElementException e) {
-            return ResponseEntity.status(404).body(ApiResponse.error("Usuários não encontrados"));
+            return ResponseEntity.status(404).body(ApiResponses.error("Usuários não encontrados"));
         } catch (Exception e) {
-            return ResponseEntity.status(500).body(ApiResponse.error("Erro interno"));
+            return ResponseEntity.status(500).body(ApiResponses.error("Erro interno"));
         }
     }
 
     @GetMapping("/client")
-    public ResponseEntity<ApiResponse<?>> getClient() {
+    @Override
+    public ResponseEntity<ApiResponses<?>> getClient() {
         try {
             List<Client> clients = userService.getClients();
-            return ResponseEntity.ok(ApiResponse.successWithCount(clients, clients.size()));
+            return ResponseEntity.ok(ApiResponses.successWithCount(clients, clients.size()));
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(ApiResponse.error("Erro de validação"));
+            return ResponseEntity.badRequest().body(ApiResponses.error("Erro de validação"));
         } catch (NoSuchElementException e) {
-            return ResponseEntity.status(404).body(ApiResponse.error("Clientes não encontrados"));
+            return ResponseEntity.status(404).body(ApiResponses.error("Clientes não encontrados"));
         } catch (Exception e) {
-            return ResponseEntity.status(500).body(ApiResponse.error("Erro interno"));
+            return ResponseEntity.status(500).body(ApiResponses.error("Erro interno"));
         }
     }
 }
