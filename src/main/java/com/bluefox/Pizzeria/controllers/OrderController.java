@@ -1,10 +1,16 @@
 package com.bluefox.Pizzeria.controllers;
 
+import com.bluefox.Pizzeria.controllers.docs.OrderControllerDocs;
 import com.bluefox.Pizzeria.dtos.CreateOrderDTO;
 import com.bluefox.Pizzeria.model.order.Order;
 import com.bluefox.Pizzeria.model.people.Client;
 import com.bluefox.Pizzeria.services.OrderService;
 import com.bluefox.Pizzeria.services.UserService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -16,7 +22,8 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/orders")
-public class OrderController {
+@Tag(name = "Orders", description = "Endpoints para gerenciamento de pedidos")
+public class OrderController implements OrderControllerDocs {
 
     @Autowired
     private OrderService orderService;
@@ -25,156 +32,167 @@ public class OrderController {
     private UserService userService;
 
     @PostMapping
-    public ResponseEntity<ApiResponse<?>> createOrder(@RequestBody CreateOrderDTO dto) {
+    @Override
+    public ResponseEntity<ApiResponses<?>> createOrder(@RequestBody CreateOrderDTO dto) {
         try {
             Order order = orderService.createOrder(dto);
             URI location = URI.create("/orders/" + order.getId());
-            return ResponseEntity.created(location).body(ApiResponse.success(order));
+            return ResponseEntity.created(location).body(ApiResponses.success(order));
         } catch (IllegalArgumentException | IllegalStateException e) {
-            return ResponseEntity.badRequest().body(ApiResponse.error("Dados inválidos"));
+            return ResponseEntity.badRequest().body(ApiResponses.error("Dados inválidos"));
         } catch (Exception e) {
-            return ResponseEntity.status(500).body(ApiResponse.error("Erro interno"));
+            return ResponseEntity.status(500).body(ApiResponses.error("Erro interno"));
         }
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<?>> getOrderById(@PathVariable String id) {
+    @Override
+    public ResponseEntity<ApiResponses<?>> getOrderById(@PathVariable String id) {
         try {
             UUID uuid = UUID.fromString(id);
             Order order = orderService.getOrderById(uuid);
-            return ResponseEntity.ok(ApiResponse.success(order));
+            return ResponseEntity.ok(ApiResponses.success(order));
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(ApiResponse.error("ID inválido"));
+            return ResponseEntity.badRequest().body(ApiResponses.error("ID inválido"));
         } catch (NoSuchElementException e) {
-            return ResponseEntity.status(404).body(ApiResponse.error("Pedido não encontrado"));
+            return ResponseEntity.status(404).body(ApiResponses.error("Pedido não encontrado"));
         } catch (Exception e) {
-            return ResponseEntity.status(500).body(ApiResponse.error("Erro interno"));
+            return ResponseEntity.status(500).body(ApiResponses.error("Erro interno"));
         }
     }
 
     @GetMapping("/client/phone/{phoneNumber}")
-    public ResponseEntity<ApiResponse<?>> getOrderByClientPhone(@PathVariable String phoneNumber) {
+    @Override
+    public ResponseEntity<ApiResponses<?>> getOrderByClientPhone(@PathVariable String phoneNumber) {
         try {
             Client client = userService.getUserByPhoneNumber(phoneNumber);
             Order order = orderService.getOrderByCustomerId(client.getId());
-            return ResponseEntity.ok(ApiResponse.success(order));
+            return ResponseEntity.ok(ApiResponses.success(order));
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(ApiResponse.error("Nome inválido"));
+            return ResponseEntity.badRequest().body(ApiResponses.error("Nome inválido"));
         } catch (NoSuchElementException e) {
-            return ResponseEntity.status(404).body(ApiResponse.error("Pedido não encontrado"));
+            return ResponseEntity.status(404).body(ApiResponses.error("Pedido não encontrado"));
         } catch (Exception e) {
-            return ResponseEntity.status(500).body(ApiResponse.error("Erro interno"));
+            return ResponseEntity.status(500).body(ApiResponses.error("Erro interno"));
         }
     }
 
     @GetMapping
-    public ResponseEntity<ApiResponse<?>> getAllOrders() {
+    @Override
+    public ResponseEntity<ApiResponses<?>> getAllOrders() {
         try {
             List<Order> orders = orderService.getAllOrders();
-            return ResponseEntity.ok(ApiResponse.successWithCount(orders, orders.size()));
+            return ResponseEntity.ok(ApiResponses.successWithCount(orders, orders.size()));
         } catch (Exception e) {
-            return ResponseEntity.status(500).body(ApiResponse.error("Erro interno"));
+            return ResponseEntity.status(500).body(ApiResponses.error("Erro interno"));
         }
     }
 
     @GetMapping("/client/{id}")
-    public ResponseEntity<ApiResponse<?>> getOrdersByClientId(@PathVariable String id) {
+    @Override
+    public ResponseEntity<ApiResponses<?>> getOrdersByClientId(@PathVariable String id) {
         try {
             UUID uuid = UUID.fromString(id);
             Order orders = orderService.getOrderByCustomerId(uuid);
-            return ResponseEntity.ok(ApiResponse.success(orders));
+            return ResponseEntity.ok(ApiResponses.success(orders));
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(ApiResponse.error("ID inválido"));
+            return ResponseEntity.badRequest().body(ApiResponses.error("ID inválido"));
         } catch (NoSuchElementException e) {
-            return ResponseEntity.status(404).body(ApiResponse.error("Pedido não encontrado"));
+            return ResponseEntity.status(404).body(ApiResponses.error("Pedido não encontrado"));
         } catch (Exception e) {
-            return ResponseEntity.status(500).body(ApiResponse.error("Erro interno"));
+            return ResponseEntity.status(500).body(ApiResponses.error("Erro interno"));
         }
     }
 
     @GetMapping("/status/{status}")
-    public ResponseEntity<ApiResponse<?>> getOrdersByStatus(@PathVariable String status) {
+    @Override
+    public ResponseEntity<ApiResponses<?>> getOrdersByStatus(@PathVariable String status) {
         try {
             List<Order> orders = orderService.getOrdersByStatus(status);
-            return ResponseEntity.ok(ApiResponse.successWithCount(orders, orders.size()));
+            return ResponseEntity.ok(ApiResponses.successWithCount(orders, orders.size()));
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(ApiResponse.error("Status inválido"));
+            return ResponseEntity.badRequest().body(ApiResponses.error("Status inválido"));
         } catch (NoSuchElementException e) {
-            return ResponseEntity.status(404).body(ApiResponse.error("Pedido não encontrado"));
+            return ResponseEntity.status(404).body(ApiResponses.error("Pedido não encontrado"));
         } catch (Exception e) {
-            return ResponseEntity.status(500).body(ApiResponse.error("Erro interno"));
+            return ResponseEntity.status(500).body(ApiResponses.error("Erro interno"));
         }
     }
 
     @GetMapping("/address/{address}")
-    public ResponseEntity<ApiResponse<?>> getOrdersByDeliveryAddress(@PathVariable String address) {
+    @Override
+    public ResponseEntity<ApiResponses<?>> getOrdersByDeliveryAddress(@PathVariable String address) {
         try {
             Order order = orderService.getOrderByDeliveryAddress(address);
-            return ResponseEntity.ok(ApiResponse.success(order));
+            return ResponseEntity.ok(ApiResponses.success(order));
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(ApiResponse.error("Endereço inválido"));
+            return ResponseEntity.badRequest().body(ApiResponses.error("Endereço inválido"));
         } catch (NoSuchElementException e) {
-            return ResponseEntity.status(404).body(ApiResponse.error("Pedido não encontrado"));
+            return ResponseEntity.status(404).body(ApiResponses.error("Pedido não encontrado"));
         } catch (Exception e) {
-            return ResponseEntity.status(500).body(ApiResponse.error("Erro interno"));
+            return ResponseEntity.status(500).body(ApiResponses.error("Erro interno"));
         }
     }
 
     @GetMapping("/payment/{paymentMethod}")
-    public ResponseEntity<ApiResponse<?>> getOrdersByPaymentMethod(@PathVariable String paymentMethod) {
+    @Override
+    public ResponseEntity<ApiResponses<?>> getOrdersByPaymentMethod(@PathVariable String paymentMethod) {
         try {
             List<Order> orders = orderService.getOrdersByPaymentMethod(paymentMethod);
-            return ResponseEntity.ok(ApiResponse.successWithCount(orders, orders.size()));
+            return ResponseEntity.ok(ApiResponses.successWithCount(orders, orders.size()));
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(ApiResponse.error("Método de pagamento inválido"));
+            return ResponseEntity.badRequest().body(ApiResponses.error("Método de pagamento inválido"));
         } catch (NoSuchElementException e) {
-            return ResponseEntity.status(404).body(ApiResponse.error("Pedido não encontrado"));
+            return ResponseEntity.status(404).body(ApiResponses.error("Pedido não encontrado"));
         } catch (Exception e) {
-            return ResponseEntity.status(500).body(ApiResponse.error("Erro interno"));
+            return ResponseEntity.status(500).body(ApiResponses.error("Erro interno"));
         }
     }
 
     @GetMapping("/price/{minPrice}/{maxPrice}")
-    public ResponseEntity<ApiResponse<?>> getOrdersByPriceRange(@PathVariable double minPrice, @PathVariable double maxPrice) {
+    @Override
+    public ResponseEntity<ApiResponses<?>> getOrdersByPriceRange(@PathVariable double minPrice, @PathVariable double maxPrice) {
         try {
             List<Order> orders = orderService.getOrdersByPriceRange(minPrice, maxPrice);
-            return ResponseEntity.ok(ApiResponse.successWithCount(orders, orders.size()));
+            return ResponseEntity.ok(ApiResponses.successWithCount(orders, orders.size()));
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(ApiResponse.error("Faixa de preço inválida"));
+            return ResponseEntity.badRequest().body(ApiResponses.error("Faixa de preço inválida"));
         } catch (NoSuchElementException e) {
-            return ResponseEntity.status(404).body(ApiResponse.error("Pedido não encontrado"));
+            return ResponseEntity.status(404).body(ApiResponses.error("Pedido não encontrado"));
         } catch (Exception e) {
-            return ResponseEntity.status(500).body(ApiResponse.error("Erro interno"));
+            return ResponseEntity.status(500).body(ApiResponses.error("Erro interno"));
         }
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ApiResponse<?>> updateOrderStatus(@PathVariable String id) {
+    @Override
+    public ResponseEntity<ApiResponses<?>> updateOrderStatus(@PathVariable String id) {
         try {
             UUID uuid = UUID.fromString(id);
             orderService.updateOrderStatus(uuid);
-            return ResponseEntity.ok(ApiResponse.success("Pedido atualizado com sucesso"));
+            return ResponseEntity.ok(ApiResponses.success("Pedido atualizado com sucesso"));
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(ApiResponse.error("ID inválido"));
+            return ResponseEntity.badRequest().body(ApiResponses.error("ID inválido"));
         } catch (NoSuchElementException e) {
-            return ResponseEntity.status(404).body(ApiResponse.error("Pedido não encontrado"));
+            return ResponseEntity.status(404).body(ApiResponses.error("Pedido não encontrado"));
         } catch (Exception e) {
-            return ResponseEntity.status(500).body(ApiResponse.error("Erro interno"));
+            return ResponseEntity.status(500).body(ApiResponses.error("Erro interno"));
         }
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<ApiResponse<?>> deleteOrder(@PathVariable String id) {
+    @Override
+    public ResponseEntity<ApiResponses<?>> deleteOrder(@PathVariable String id) {
         try {
             UUID uuid = UUID.fromString(id);
             orderService.deleteOrderById(uuid);
             return ResponseEntity.noContent().build();
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(ApiResponse.error("ID inválido"));
+            return ResponseEntity.badRequest().body(ApiResponses.error("ID inválido"));
         } catch (NoSuchElementException e) {
-            return ResponseEntity.status(404).body(ApiResponse.error("Pedido não encontrado"));
+            return ResponseEntity.status(404).body(ApiResponses.error("Pedido não encontrado"));
         } catch (Exception e) {
-            return ResponseEntity.status(500).body(ApiResponse.error("Erro interno"));
+            return ResponseEntity.status(500).body(ApiResponses.error("Erro interno"));
         }
     }
 }
