@@ -1,5 +1,6 @@
 package com.bluefox.Pizzeria.model.food;
 
+import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 
@@ -14,13 +15,22 @@ import java.util.List;
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
 @SuperBuilder
+@Entity
+@Table(name = "pizza")
 public class Pizza extends Food {
 
+    @Enumerated(EnumType.STRING)
     private Size size;
-    @Builder.Default
+
+    @ElementCollection
+    @CollectionTable(name = "pizza_ingredient", joinColumns = @JoinColumn(name = "pizza_id"))
+    @Column(name = "ingredient")
     private List<String> ingredients = new ArrayList<>();
-    @Builder.Default
-    private String crustFlavor = "Normal";
+
+    @Column(name = "crust_flavor")
+    private String crustFlavor;
+
     private boolean vegetarian;
+
     private boolean spicy;
 }

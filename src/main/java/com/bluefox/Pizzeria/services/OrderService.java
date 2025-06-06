@@ -2,8 +2,12 @@ package com.bluefox.Pizzeria.services;
 
 import com.bluefox.Pizzeria.dtos.CreateOrderDTO;
 import com.bluefox.Pizzeria.interfaces.IOrderRepository;
+import com.bluefox.Pizzeria.interfaces.IPersonRepository;
 import com.bluefox.Pizzeria.model.order.Order;
 import com.bluefox.Pizzeria.model.order.OrderStatus;
+import com.bluefox.Pizzeria.model.people.Client;
+import com.bluefox.Pizzeria.model.people.Person;
+import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -17,29 +21,41 @@ import java.util.UUID;
 @Service
 public class OrderService {
     private final IOrderRepository repository;
+    private final IPersonRepository personRepository;
     private static final Logger log = LoggerFactory.getLogger(OrderService.class);
 
 
-    public OrderService(@Qualifier("orderArrayList") IOrderRepository repository) {
+    public OrderService(@Qualifier("orderArrayList") IOrderRepository repository, @Qualifier("personArrayList") IPersonRepository personRepository) {
         this.repository = repository;
+        this.personRepository = personRepository;
     }
 
-    public Order createOrder(CreateOrderDTO order) throws IllegalArgumentException, IllegalStateException {
-        BigDecimal totalPrice = order.items().stream()
-                .map(item -> item.getTotalPrice().multiply(BigDecimal.valueOf(item.getQuantity())))
+    @Transactional
+    public Order createOrder(CreateOrderDTO orderDTO) {
+        UUID clientId = UUID.fromString(orderDTO.clientId());
+        Person person = personRepository.findById(clientId);
+
+        if (!(person instanceof Client client)) {
+            throw new IllegalArgumentException("Usuário não é um cliente");
+        }
+
+        BigDecimal totalPrice = orderDTO.items().stream()
+                .map(item -> item.getUnitPrice().multiply(BigDecimal.valueOf(item.getQuantity())))
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
         Order newOrder = Order.builder()
-                .clientId(UUID.fromString(order.clientId()))
-                .deliveryAddress(order.deliveryAddress())
-                .paymentMethod(order.paymentMethod())
-                .items(order.items())
-                .notes(order.notes())
+                .client(client)
+                .deliveryAddress(orderDTO.deliveryAddress())
+                .paymentMethod(orderDTO.paymentMethod())
+                .items(orderDTO.items())
+                .notes(orderDTO.notes())
                 .totalPrice(totalPrice)
                 .build();
-        repository.save(newOrder);
-        return newOrder;
+
+        return repository.save(newOrder);
     }
+
+
 
     public Order getOrderById(UUID id) throws IllegalArgumentException, NoSuchElementException {
         return repository.findById(id);

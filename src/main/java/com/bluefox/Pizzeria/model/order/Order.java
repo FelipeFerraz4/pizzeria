@@ -1,34 +1,57 @@
 package com.bluefox.Pizzeria.model.order;
 
+import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
-
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+import com.bluefox.Pizzeria.model.people.Client;
 
 /**
  * Represents a customer's order, containing a list of food items and order-related metadata.
  */
+
 @Data
 @NoArgsConstructor
 @EqualsAndHashCode
 @ToString
 @SuperBuilder
+@Entity
+@Table(name = "orders")
 public class Order {
 
-    @Builder.Default
-    private UUID id = UUID.randomUUID();
-    private UUID clientId;
+    @Id
+    @GeneratedValue
+    private UUID id;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "client_id")
+    private Client client;
+
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "order_id")
     @Builder.Default
     private List<OrderItem> items = new ArrayList<>();
-    @Builder.Default
-    private LocalDateTime createdAt = LocalDateTime.now();
+
+    private LocalDateTime createdAt;
+
     private String deliveryAddress;
+
     private String paymentMethod;
-    @Builder.Default
-    private OrderStatus status = OrderStatus.PENDING;
+
+    @Enumerated(EnumType.STRING)
+    private OrderStatus status;
+
     private BigDecimal totalPrice;
+
     private String notes;
-//    private UUID deliveryPersonId;
+
+    @PrePersist
+    public void prePersist() {
+        if (createdAt == null) createdAt = LocalDateTime.now();
+        if (status == null) status = OrderStatus.PENDING;
+    }
 }

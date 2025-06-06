@@ -15,7 +15,7 @@ public class OrderRepositoryArrayList implements IOrderRepository {
     private final List<Order> orders = new ArrayList<>();
 
     @Override
-    public void save(Order object) throws IllegalArgumentException, IllegalStateException {
+    public Order save(Order object) throws IllegalArgumentException, IllegalStateException {
         if (object == null || object.getId() == null) {
             throw new IllegalArgumentException("Pedido ou ID não pode ser nulo.");
         }
@@ -27,6 +27,7 @@ public class OrderRepositoryArrayList implements IOrderRepository {
         }
 
         orders.add(object);
+        return object;
     }
 
     @Override

@@ -15,7 +15,7 @@ public class PersonRepositoryArrayList implements IPersonRepository {
     private final List<Person> people = new ArrayList<>();
 
     @Override
-    public void save(Person object) throws IllegalArgumentException, IllegalStateException {
+    public Person save(Person object) throws IllegalArgumentException, IllegalStateException {
         if (object == null) {
             throw new IllegalArgumentException("Pessoa não pode ser nula.");
         }
@@ -40,6 +40,7 @@ public class PersonRepositoryArrayList implements IPersonRepository {
         }
 
         people.add(object);
+        return  object;
     }
 
     @Override

@@ -17,7 +17,7 @@ public class FoodRepositoryArrayList implements IFoodRepository {
     private final List<Food> foods = new ArrayList<>();
 
     @Override
-    public void save(Food object) throws IllegalArgumentException, IllegalStateException {
+    public Food save(Food object) throws IllegalArgumentException, IllegalStateException {
         if (object == null || object.getId() == null) {
             throw new IllegalArgumentException("Comida ou ID não pode ser nulo.");
         }
@@ -30,6 +30,7 @@ public class FoodRepositoryArrayList implements IFoodRepository {
         }
 
         foods.add(object);
+        return object;
     }
 
     @Override
