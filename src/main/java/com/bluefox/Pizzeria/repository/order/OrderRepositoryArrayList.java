@@ -31,14 +31,16 @@ public class OrderRepositoryArrayList implements IOrderRepository {
     }
 
     @Override
-    public Order findById(UUID id) throws IllegalArgumentException, NoSuchElementException {
-        if (id == null) throw new IllegalArgumentException("ID não pode ser nulo.");
+    public Optional<Order> findById(UUID id) throws IllegalArgumentException {
+        if (id == null) {
+            throw new IllegalArgumentException("ID não pode ser nulo.");
+        }
 
         return orders.stream()
                 .filter(o -> o.getId().equals(id))
-                .findFirst()
-                .orElseThrow(() -> new NoSuchElementException("Pedido com ID '" + id + "' não encontrado."));
+                .findFirst();
     }
+
 
     @Override
     public Order findByCustomerId(UUID customerId) throws IllegalArgumentException, NoSuchElementException {
@@ -47,7 +49,7 @@ public class OrderRepositoryArrayList implements IOrderRepository {
         }
 
         return orders.stream()
-                .filter(o -> customerId.equals(o.getClientId()))
+                .filter(o -> customerId.equals(o.getClient().getId()))
                 .max(Comparator.comparing(Order::getCreatedAt))
                 .orElseThrow(() ->
                         new NoSuchElementException("Nenhum pedido encontrado para o cliente com ID '" + customerId + "'.")

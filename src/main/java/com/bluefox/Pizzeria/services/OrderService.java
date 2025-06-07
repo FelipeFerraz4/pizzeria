@@ -25,7 +25,7 @@ public class OrderService {
     private static final Logger log = LoggerFactory.getLogger(OrderService.class);
 
 
-    public OrderService(@Qualifier("orderArrayList") IOrderRepository repository, @Qualifier("personArrayList") IPersonRepository personRepository) {
+    public OrderService(@Qualifier("orderRepositoryPostgreSQL") IOrderRepository repository, @Qualifier("personRepositoryPostgreSQL") IPersonRepository personRepository) {
         this.repository = repository;
         this.personRepository = personRepository;
     }
@@ -33,7 +33,8 @@ public class OrderService {
     @Transactional
     public Order createOrder(CreateOrderDTO orderDTO) {
         UUID clientId = UUID.fromString(orderDTO.clientId());
-        Person person = personRepository.findById(clientId);
+        Person person = personRepository.findById(clientId).orElseThrow(() ->
+                new NoSuchElementException("Cliente com ID '" + clientId + "' não encontrado."));
 
         if (!(person instanceof Client client)) {
             throw new IllegalArgumentException("Usuário não é um cliente");
@@ -58,7 +59,8 @@ public class OrderService {
 
 
     public Order getOrderById(UUID id) throws IllegalArgumentException, NoSuchElementException {
-        return repository.findById(id);
+        return repository.findById(id)
+                .orElseThrow(() -> new NoSuchElementException("Pedido com ID '" + id + "' não encontrado."));
     }
 
     public Order getOrderByCustomerId(UUID customerId) throws IllegalArgumentException, NoSuchElementException {
@@ -74,12 +76,9 @@ public class OrderService {
         return repository.findByDeliveryAddress(deliveryAddress);
     }
 
-//    public void updateOrder(Order order) throws IllegalArgumentException, NoSuchElementException {
-//        repository.updateById(order);
-//    }
-
     public void updateOrderStatus(UUID id) throws IllegalArgumentException, NoSuchElementException {
-        Order order = repository.findById(id);
+        Order order = repository.findById(id).orElseThrow(() ->
+                new NoSuchElementException("Pedido com ID '" + id + "' não encontrado."));
         if (order.getStatus() == OrderStatus.PENDING) {
             order.setStatus(OrderStatus.IN_PREPARATION);
         } else if (order.getStatus() == OrderStatus.IN_PREPARATION) {
