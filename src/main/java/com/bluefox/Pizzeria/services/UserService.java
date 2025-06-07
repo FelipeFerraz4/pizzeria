@@ -19,7 +19,7 @@ public class UserService {
 
     private final IPersonRepository repository;
 
-    public UserService(@Qualifier("personArrayList") IPersonRepository repository) {
+    public UserService(@Qualifier("personRepositoryPostgreSQL") IPersonRepository repository) {
         this.repository = repository;
     }
 
@@ -38,11 +38,13 @@ public class UserService {
     }
 
     public Client getUserById(UUID id) {
-        return (Client) repository.findById(id);
+        return (Client) repository.findById(id).orElseThrow(() ->
+                new NoSuchElementException("Usuário com ID '" + id + "' não encontrado."));
     }
 
     public Client updateClient(UUID id, UpdateClientDTO dto) throws IllegalArgumentException, NoSuchElementException {
-        Client client = (Client) repository.findById(id);
+        Client client = (Client) repository.findById(id).orElseThrow(() ->
+                new NoSuchElementException("Usuário com ID '" + id + "' não encontrado."));
         client.setName(dto.name());
         client.setPhoneNumber(dto.phoneNumber());
         client.setPassword(dto.password());

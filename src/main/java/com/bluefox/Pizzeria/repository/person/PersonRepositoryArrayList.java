@@ -4,10 +4,7 @@ import com.bluefox.Pizzeria.interfaces.IPersonRepository;
 import com.bluefox.Pizzeria.model.people.Person;
 import org.springframework.stereotype.Repository;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.UUID;
+import java.util.*;
 
 @Repository("personArrayList")
 public class PersonRepositoryArrayList implements IPersonRepository {
@@ -44,16 +41,16 @@ public class PersonRepositoryArrayList implements IPersonRepository {
     }
 
     @Override
-    public Person findById(UUID id) throws IllegalArgumentException, NoSuchElementException {
+    public Optional<Person> findById(UUID id) throws IllegalArgumentException {
         if (id == null) {
             throw new IllegalArgumentException("ID não pode ser nulo.");
         }
 
         return people.stream()
                 .filter(p -> id.equals(p.getId()))
-                .findFirst()
-                .orElseThrow(() -> new NoSuchElementException("Pessoa com ID '" + id + "' não encontrada."));
+                .findFirst();
     }
+
 
     @Override
     public List<Person> findByName(String username) throws IllegalArgumentException, NoSuchElementException {
