@@ -17,7 +17,7 @@ import java.util.UUID;
 public class FoodService {
     private final IFoodRepository foodRepository;
 
-    public FoodService(@Qualifier("foodArrayList") IFoodRepository foodRepository) {
+    public FoodService(@Qualifier("foodRepositoryPostgreSQL") IFoodRepository foodRepository) {
         this.foodRepository = foodRepository;
     }
 
@@ -41,15 +41,15 @@ public class FoodService {
     }
 
     public Food getFoodById(UUID id) throws IllegalArgumentException, NoSuchElementException {
-        return foodRepository.findById(id);
+        return foodRepository.findById(id).orElseThrow(() -> new NoSuchElementException("Food with ID '" + id + "' not found."));
     }
 
     public Pizza getPizzaById(UUID id) throws IllegalArgumentException, NoSuchElementException {
-        return (Pizza) foodRepository.findById(id);
+        return (Pizza) foodRepository.findById(id).orElseThrow(() -> new NoSuchElementException("Pizza with ID '" + id + "' not found."));
     }
 
     public Pizza updatePizza(UUID id, UpdatePizzaDTO dto) throws IllegalArgumentException, NoSuchElementException {
-        Pizza pizza = (Pizza) foodRepository.findById(id);
+        Pizza pizza = (Pizza) foodRepository.findById(id).orElseThrow(() -> new NoSuchElementException("Pizza with ID '" + id + "' not found."));
         pizza.setName(dto.name());
         pizza.setDescription(dto.description());
         pizza.setPrice(dto.price());

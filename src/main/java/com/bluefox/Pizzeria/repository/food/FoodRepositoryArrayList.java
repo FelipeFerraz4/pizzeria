@@ -5,10 +5,7 @@ import com.bluefox.Pizzeria.model.food.Food;
 import org.springframework.stereotype.Repository;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Repository("foodArrayList")
@@ -34,16 +31,16 @@ public class FoodRepositoryArrayList implements IFoodRepository {
     }
 
     @Override
-    public Food findById(UUID id) throws IllegalArgumentException, NoSuchElementException {
+    public Optional<Food> findById(UUID id) throws IllegalArgumentException {
         if (id == null) {
             throw new IllegalArgumentException("ID não pode ser nulo.");
         }
 
         return foods.stream()
                 .filter(f -> id.equals(f.getId()))
-                .findFirst()
-                .orElseThrow(() -> new NoSuchElementException("Comida com ID '" + id + "' não encontrada."));
+                .findFirst();
     }
+
 
     @Override
     public List<Food> findByName(String name) throws IllegalArgumentException, NoSuchElementException {
