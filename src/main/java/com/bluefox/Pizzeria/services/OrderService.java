@@ -1,15 +1,13 @@
 package com.bluefox.Pizzeria.services;
 
 import com.bluefox.Pizzeria.dtos.CreateOrderDTO;
-import com.bluefox.Pizzeria.interfaces.IOrderRepository;
-import com.bluefox.Pizzeria.interfaces.IPersonRepository;
 import com.bluefox.Pizzeria.model.order.Order;
 import com.bluefox.Pizzeria.model.order.OrderStatus;
 import com.bluefox.Pizzeria.model.people.Client;
-import com.bluefox.Pizzeria.model.people.Person;
+import com.bluefox.Pizzeria.repository.order.IOrderRepository;
+import com.bluefox.Pizzeria.repository.person.IClientRepository;
 import jakarta.transaction.Transactional;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
@@ -19,26 +17,23 @@ import java.util.NoSuchElementException;
 import java.util.UUID;
 
 @Service
+@Transactional
+@Slf4j
 public class OrderService {
+
     private final IOrderRepository repository;
-    private final IPersonRepository personRepository;
-    private static final Logger log = LoggerFactory.getLogger(OrderService.class);
+    private final IClientRepository clientRepository;
 
-
-    public OrderService(@Qualifier("orderRepositoryPostgreSQL") IOrderRepository repository, @Qualifier("personRepositoryPostgreSQL") IPersonRepository personRepository) {
+    public OrderService(@Qualifier("orderRepositoryJPA") IOrderRepository repository,
+                        @Qualifier("clientRepositoryJPA") IClientRepository clientRepository) {
         this.repository = repository;
-        this.personRepository = personRepository;
+        this.clientRepository = clientRepository;
     }
 
-    @Transactional
     public Order createOrder(CreateOrderDTO orderDTO) {
         UUID clientId = UUID.fromString(orderDTO.clientId());
-        Person person = personRepository.findById(clientId).orElseThrow(() ->
-                new NoSuchElementException("Cliente com ID '" + clientId + "' não encontrado."));
-
-        if (!(person instanceof Client client)) {
-            throw new IllegalArgumentException("Usuário não é um cliente");
-        }
+        Client client = clientRepository.findById(clientId)
+                .orElseThrow(() -> new NoSuchElementException("Cliente com ID '" + clientId + "' não encontrado."));
 
         BigDecimal totalPrice = orderDTO.items().stream()
                 .map(item -> item.getUnitPrice().multiply(BigDecimal.valueOf(item.getQuantity())))
@@ -51,73 +46,73 @@ public class OrderService {
                 .items(orderDTO.items())
                 .notes(orderDTO.notes())
                 .totalPrice(totalPrice)
+                .status(OrderStatus.PENDING)
                 .build();
 
-        return repository.save(newOrder);
+        return repository.saveAndFlush(newOrder);
     }
 
-
-
-    public Order getOrderById(UUID id) throws IllegalArgumentException, NoSuchElementException {
+    public Order getOrderById(UUID id) {
         return repository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("Pedido com ID '" + id + "' não encontrado."));
     }
 
-    public Order getOrderByCustomerId(UUID customerId) throws IllegalArgumentException, NoSuchElementException {
-        return repository.findByCustomerId(customerId);
+    public List<Order> getOrdersByClientId(UUID clientId) {
+        Client client = clientRepository.findById(clientId)
+                .orElseThrow(() -> new NoSuchElementException("Cliente com ID '" + clientId + "' não encontrado."));
+        return repository.findByClient(client);
     }
 
-    public List<Order> getOrdersByStatus(String status) throws IllegalArgumentException, NoSuchElementException {
-        OrderStatus newStatus = OrderStatus.valueOf(status.toUpperCase());
-        return repository.findByStatus(newStatus);
-    }
-
-    public Order getOrderByDeliveryAddress(String deliveryAddress) throws IllegalArgumentException, NoSuchElementException {
-        return repository.findByDeliveryAddress(deliveryAddress);
-    }
-
-    public void updateOrderStatus(UUID id) throws IllegalArgumentException, NoSuchElementException {
-        Order order = repository.findById(id).orElseThrow(() ->
-                new NoSuchElementException("Pedido com ID '" + id + "' não encontrado."));
-        if (order.getStatus() == OrderStatus.PENDING) {
-            order.setStatus(OrderStatus.IN_PREPARATION);
-        } else if (order.getStatus() == OrderStatus.IN_PREPARATION) {
-            order.setStatus(OrderStatus.OUT_FOR_DELIVERY);
-        } else if (order.getStatus() == OrderStatus.OUT_FOR_DELIVERY) {
-            order.setStatus(OrderStatus.DELIVERED);
-        }
-        repository.updateById(order);
-    }
-
-    public void deleteOrderById(UUID id) throws IllegalArgumentException, NoSuchElementException {
-        repository.deleteByID(id);
-    }
-
-    public List<Order> getOrdersByPriceRange(double minPrice, double maxPrice) throws IllegalArgumentException, NoSuchElementException {
-        log.info("Buscando pedidos com faixa de preço entre {} e {}", minPrice, maxPrice);
-
+    public List<Order> getOrdersByStatus(String status) {
         try {
-            List<Order> orders = repository.findByPriceRange(minPrice, maxPrice);
-            log.info("Foram encontrados {} pedidos na faixa de preço.", orders.size());
-            return orders;
+            OrderStatus newStatus = OrderStatus.valueOf(status.toUpperCase());
+            return repository.findByStatus(newStatus);
         } catch (IllegalArgumentException e) {
-            log.warn("Faixa de preço inválida: min={} max={}", minPrice, maxPrice);
-            throw e;
-        } catch (NoSuchElementException e) {
-            log.info("Nenhum pedido encontrado na faixa de preço entre {} e {}", minPrice, maxPrice);
-            throw e;
-        } catch (Exception e) {
-            log.error("Erro inesperado ao buscar pedidos por faixa de preço", e);
-            throw e;
+            throw new IllegalArgumentException("Status de pedido inválido: " + status);
         }
     }
 
-    public List<Order> getOrdersByPaymentMethod(String paymentMethod) throws IllegalArgumentException, NoSuchElementException {
-        return repository.findByPaymentMethod(paymentMethod);
+    public List<Order> getOrdersByDeliveryAddress(String deliveryAddress) {
+        return repository.findByDeliveryAddressIgnoreCase(deliveryAddress);
+    }
+
+    public void updateOrderStatus(UUID id) {
+        Order order = repository.findById(id)
+                .orElseThrow(() -> new NoSuchElementException("Pedido com ID '" + id + "' não encontrado."));
+
+        switch (order.getStatus()) {
+            case PENDING -> order.setStatus(OrderStatus.IN_PREPARATION);
+            case IN_PREPARATION -> order.setStatus(OrderStatus.OUT_FOR_DELIVERY);
+            case OUT_FOR_DELIVERY -> order.setStatus(OrderStatus.DELIVERED);
+            case DELIVERED -> log.info("Pedido {} já foi entregue. Nenhuma atualização feita.", id);
+        }
+
+        repository.saveAndFlush(order);
+    }
+
+    public void deleteOrderById(UUID id) {
+        if (!repository.existsById(id)) {
+            throw new NoSuchElementException("Pedido com ID '" + id + "' não encontrado.");
+        }
+        repository.deleteById(id);
+    }
+
+    public List<Order> getOrdersByPriceRange(double minPrice, double maxPrice) {
+        if (minPrice < 0 || maxPrice < 0 || minPrice > maxPrice) {
+            throw new IllegalArgumentException("Faixa de preço inválida: min=" + minPrice + ", max=" + maxPrice);
+        }
+
+        BigDecimal min = BigDecimal.valueOf(minPrice);
+        BigDecimal max = BigDecimal.valueOf(maxPrice);
+
+        return repository.findByTotalPriceBetween(min, max);
+    }
+
+    public List<Order> getOrdersByPaymentMethod(String paymentMethod) {
+        return repository.findByPaymentMethodIgnoreCase(paymentMethod);
     }
 
     public List<Order> getAllOrders() {
         return repository.findAll();
     }
-
 }

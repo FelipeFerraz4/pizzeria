@@ -7,9 +7,9 @@ import java.util.List;
 import java.util.NoSuchElementException;
 
 public interface IFoodRepository extends IRepository<Food> {
-    List<Food> findByName(String name) throws IllegalArgumentException, NoSuchElementException;
+    List<Food> findByNameIgnoreCase(String name) throws IllegalArgumentException, NoSuchElementException;
     List<Food> findByType(Class<?> clazz) throws IllegalArgumentException, NoSuchElementException;
-    List<Food> findByPriceRange(BigDecimal minPrice, BigDecimal maxPrice) throws IllegalArgumentException, NoSuchElementException;
-    List<Food> findByNotAvailable() throws IllegalArgumentException, NoSuchElementException;
-    List<Food> findByAvailable() throws IllegalArgumentException, NoSuchElementException;
+    List<Food> findByPriceBetween(BigDecimal minPrice, BigDecimal maxPrice) throws IllegalArgumentException, NoSuchElementException;
+    List<Food> findByAvailableFalse() throws IllegalArgumentException, NoSuchElementException;
+    List<Food> findByAvailableTrue() throws IllegalArgumentException, NoSuchElementException;
 }

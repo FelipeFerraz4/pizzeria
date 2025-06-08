@@ -1,13 +1,11 @@
 package com.bluefox.Pizzeria.controllers;
 
-import com.bluefox.Pizzeria.controllers.docs.UserControllerDocs;
+import com.bluefox.Pizzeria.controllers.docs.ClientControllerDocs;
 import com.bluefox.Pizzeria.dtos.CreateClientDTO;
 import com.bluefox.Pizzeria.dtos.UpdateClientDTO;
 import com.bluefox.Pizzeria.model.people.Client;
-import com.bluefox.Pizzeria.model.people.Person;
-import com.bluefox.Pizzeria.services.UserService;
+import com.bluefox.Pizzeria.services.ClientService;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,18 +15,21 @@ import java.util.NoSuchElementException;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/users")
-@Tag(name = "Users", description = "Endpoints para gerenciamento de usuários")
-public class UserController implements UserControllerDocs {
+@RequestMapping("/clients")
+@Tag(name = "Clients", description = "Endpoints para gerenciamento de clientes")
+public class ClientController implements ClientControllerDocs {
 
-    @Autowired
-    private UserService userService;
+    private final ClientService clientService;
+
+    public ClientController(ClientService clientService) {
+        this.clientService = clientService;
+    }
 
     @PostMapping
     @Override
-    public ResponseEntity<ApiResponses<?>> createUser(@RequestBody CreateClientDTO dto) {
+    public ResponseEntity<ApiResponses<?>> createClient(@RequestBody CreateClientDTO dto) {
         try {
-            Client client = userService.createUser(dto);
+            Client client = clientService.createClient(dto);
             URI location = URI.create("/users/" + client.getId());
             return ResponseEntity.created(location).body(ApiResponses.success(client));
         } catch (IllegalArgumentException | IllegalStateException e) {
@@ -40,10 +41,10 @@ public class UserController implements UserControllerDocs {
 
     @PutMapping("/{id}")
     @Override
-    public ResponseEntity<ApiResponses<?>> updateUser(@PathVariable String id, @RequestBody UpdateClientDTO dto) {
+    public ResponseEntity<ApiResponses<?>> updateClient(@PathVariable String id, @RequestBody UpdateClientDTO dto) {
         try {
             UUID uuid = UUID.fromString(id);
-            Client client = userService.updateClient(uuid, dto);
+            Client client = clientService.updateClient(uuid, dto);
             return ResponseEntity.ok(ApiResponses.success(client));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(ApiResponses.error("ID inválido"));
@@ -56,10 +57,10 @@ public class UserController implements UserControllerDocs {
 
     @DeleteMapping("/{id}")
     @Override
-    public ResponseEntity<ApiResponses<?>> deleteUser(@PathVariable String id) {
+    public ResponseEntity<ApiResponses<?>> deleteClient(@PathVariable String id) {
         try {
             UUID uuid = UUID.fromString(id);
-            userService.deleteUserById(uuid);
+            clientService.deleteClientById(uuid);
             return ResponseEntity.noContent().build();
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(ApiResponses.error("ID inválido"));
@@ -72,10 +73,10 @@ public class UserController implements UserControllerDocs {
 
     @GetMapping("/{id}")
     @Override
-    public ResponseEntity<ApiResponses<?>> getUserById(@PathVariable String id) {
+    public ResponseEntity<ApiResponses<?>> getClientById(@PathVariable String id) {
         try {
             UUID uuid = UUID.fromString(id);
-            Client client = userService.getUserById(uuid);
+            Client client = clientService.getClientById(uuid);
             return ResponseEntity.ok(ApiResponses.success(client));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(ApiResponses.error("ID inválido"));
@@ -88,10 +89,10 @@ public class UserController implements UserControllerDocs {
 
     @GetMapping
     @Override
-    public ResponseEntity<ApiResponses<?>> getAllUsers() {
+    public ResponseEntity<ApiResponses<?>> getAllClients() {
         try {
-            List<Person> people = userService.getAllUsers();
-            return ResponseEntity.ok(ApiResponses.successWithCount(people, people.size()));
+            List<Client> clients = clientService.getAllClients();
+            return ResponseEntity.ok(ApiResponses.successWithCount(clients, clients.size()));
         } catch (Exception e) {
             return ResponseEntity.status(500).body(ApiResponses.error("Erro interno"));
         }
@@ -99,9 +100,9 @@ public class UserController implements UserControllerDocs {
 
     @GetMapping("/email/{email}")
     @Override
-    public ResponseEntity<ApiResponses<?>> getUserByEmail(@PathVariable String email) {
+    public ResponseEntity<ApiResponses<?>> getClientByEmail(@PathVariable String email) {
         try {
-            Client client = userService.getUserByEmail(email);
+            Client client = clientService.getClientByEmail(email);
             return ResponseEntity.ok(ApiResponses.success(client));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(ApiResponses.error("Email inválido"));
@@ -114,9 +115,9 @@ public class UserController implements UserControllerDocs {
 
     @GetMapping("/phone/{phoneNumber}")
     @Override
-    public ResponseEntity<ApiResponses<?>> getUserByPhoneNumber(@PathVariable String phoneNumber) {
+    public ResponseEntity<ApiResponses<?>> getClientByPhoneNumber(@PathVariable String phoneNumber) {
         try {
-            Client client = userService.getUserByPhoneNumber(phoneNumber);
+            Client client = clientService.getClientsByPhoneNumber(phoneNumber);
             return ResponseEntity.ok(ApiResponses.success(client));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(ApiResponses.error("Telefone inválido"));
@@ -129,29 +130,14 @@ public class UserController implements UserControllerDocs {
 
     @GetMapping("/name/{name}")
     @Override
-    public ResponseEntity<ApiResponses<?>> getUserByName(@PathVariable String name) {
+    public ResponseEntity<ApiResponses<?>> getClientByName(@PathVariable String name) {
         try {
-            List<Person> people = userService.getUserByName(name);
-            return ResponseEntity.ok(ApiResponses.successWithCount(people, people.size()));
+            List<Client> clients = clientService.getClientsByName(name);
+            return ResponseEntity.ok(ApiResponses.successWithCount(clients, clients.size()));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(ApiResponses.error("Nome inválido"));
         } catch (NoSuchElementException e) {
             return ResponseEntity.status(404).body(ApiResponses.error("Usuários não encontrados"));
-        } catch (Exception e) {
-            return ResponseEntity.status(500).body(ApiResponses.error("Erro interno"));
-        }
-    }
-
-    @GetMapping("/client")
-    @Override
-    public ResponseEntity<ApiResponses<?>> getClient() {
-        try {
-            List<Client> clients = userService.getClients();
-            return ResponseEntity.ok(ApiResponses.successWithCount(clients, clients.size()));
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(ApiResponses.error("Erro de validação"));
-        } catch (NoSuchElementException e) {
-            return ResponseEntity.status(404).body(ApiResponses.error("Clientes não encontrados"));
         } catch (Exception e) {
             return ResponseEntity.status(500).body(ApiResponses.error("Erro interno"));
         }

@@ -5,6 +5,7 @@ import com.bluefox.Pizzeria.model.people.Person;
 import org.springframework.stereotype.Repository;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Repository("personArrayList")
 public class PersonRepositoryArrayList implements IPersonRepository {
@@ -12,7 +13,7 @@ public class PersonRepositoryArrayList implements IPersonRepository {
     private final List<Person> people = new ArrayList<>();
 
     @Override
-    public Person save(Person object) throws IllegalArgumentException, IllegalStateException {
+    public Optional<Person> save(Person object) throws IllegalArgumentException, IllegalStateException {
         if (object == null) {
             throw new IllegalArgumentException("Pessoa não pode ser nula.");
         }
@@ -37,7 +38,7 @@ public class PersonRepositoryArrayList implements IPersonRepository {
         }
 
         people.add(object);
-        return  object;
+        return Optional.of(object);
     }
 
     @Override
@@ -51,45 +52,38 @@ public class PersonRepositoryArrayList implements IPersonRepository {
                 .findFirst();
     }
 
-
     @Override
-    public List<Person> findByName(String username) throws IllegalArgumentException, NoSuchElementException {
+    public List<Person> findByNameIgnoreCase(String username) throws IllegalArgumentException {
         if (username == null || username.isBlank()) {
             throw new IllegalArgumentException("Nome de usuário não pode ser nulo ou vazio.");
         }
 
-        List<Person> result = people.stream()
+        return people.stream()
                 .filter(Person::isActive)
-                .filter(p -> p.getName().contains(username))
-                .toList();
-        if (result.isEmpty()) {
-            throw new NoSuchElementException("Pessoa com nome '" + username + "' não encontrada.");
-        }
-        return result;
+                .filter(p -> p.getName().toLowerCase().contains(username.toLowerCase()))
+                .collect(Collectors.toList());
     }
 
     @Override
-    public Person findByEmail(String email) throws IllegalArgumentException, NoSuchElementException {
+    public Optional<Person> findByEmail(String email) throws IllegalArgumentException {
         if (email == null || email.isBlank()) {
             throw new IllegalArgumentException("Email não pode ser nulo ou vazio.");
         }
 
         return people.stream()
                 .filter(p -> email.equalsIgnoreCase(p.getEmail()))
-                .findFirst()
-                .orElseThrow(() -> new NoSuchElementException("Pessoa com email '" + email + "' não encontrada."));
+                .findFirst();
     }
 
     @Override
-    public Person findByPhoneNumber(String phoneNumber) throws IllegalArgumentException, NoSuchElementException {
+    public Optional<Person> findByPhoneNumber(String phoneNumber) throws IllegalArgumentException {
         if (phoneNumber == null || phoneNumber.isBlank()) {
             throw new IllegalArgumentException("Número de telefone não pode ser nulo ou vazio.");
         }
 
         return people.stream()
                 .filter(p -> phoneNumber.equals(p.getPhoneNumber()))
-                .findFirst()
-                .orElseThrow(() -> new NoSuchElementException("Pessoa com telefone '" + phoneNumber + "' não encontrada."));
+                .findFirst();
     }
 
     @Override
@@ -109,7 +103,7 @@ public class PersonRepositoryArrayList implements IPersonRepository {
     }
 
     @Override
-    public void deleteByID(UUID id) throws IllegalArgumentException, NoSuchElementException {
+    public void deleteByID(UUID id) throws IllegalArgumentException, NoSuchElementException, IllegalStateException {
         if (id == null) {
             throw new IllegalArgumentException("ID não pode ser nulo.");
         }
@@ -126,23 +120,16 @@ public class PersonRepositoryArrayList implements IPersonRepository {
         person.setActive(false);
     }
 
-
     @Override
-    public List<Person> findByType(Class<?> clazz) throws IllegalArgumentException, NoSuchElementException {
+    public List<Person> findByType(Class<?> clazz) throws IllegalArgumentException {
         if (clazz == null) {
             throw new IllegalArgumentException("Classe não pode ser nula.");
         }
 
-        List<Person> result = people.stream()
+        return people.stream()
                 .filter(Person::isActive)
                 .filter(clazz::isInstance)
-                .toList();
-
-        if (result.isEmpty()) {
-            throw new NoSuchElementException("Nenhuma pessoa do tipo '" + clazz.getSimpleName() + "' encontrada.");
-        }
-
-        return result;
+                .collect(Collectors.toList());
     }
 
     @Override

@@ -14,7 +14,7 @@ public class FoodRepositoryArrayList implements IFoodRepository {
     private final List<Food> foods = new ArrayList<>();
 
     @Override
-    public Food save(Food object) throws IllegalArgumentException, IllegalStateException {
+    public Optional<Food> save(Food object) throws IllegalArgumentException, IllegalStateException {
         if (object == null || object.getId() == null) {
             throw new IllegalArgumentException("Comida ou ID não pode ser nulo.");
         }
@@ -27,7 +27,7 @@ public class FoodRepositoryArrayList implements IFoodRepository {
         }
 
         foods.add(object);
-        return object;
+        return Optional.of(object);
     }
 
     @Override
@@ -43,7 +43,7 @@ public class FoodRepositoryArrayList implements IFoodRepository {
 
 
     @Override
-    public List<Food> findByName(String name) throws IllegalArgumentException, NoSuchElementException {
+    public List<Food> findByNameIgnoreCase(String name) throws IllegalArgumentException, NoSuchElementException {
         if (name == null || name.isBlank()) {
             throw new IllegalArgumentException("Nome não pode ser nulo ou vazio.");
         }
@@ -94,7 +94,7 @@ public class FoodRepositoryArrayList implements IFoodRepository {
     }
 
     @Override
-    public List<Food> findByPriceRange(BigDecimal minPrice, BigDecimal maxPrice) throws IllegalArgumentException, NoSuchElementException {
+    public List<Food> findByPriceBetween(BigDecimal minPrice, BigDecimal maxPrice) throws IllegalArgumentException, NoSuchElementException {
         if (minPrice == null || maxPrice == null || minPrice.compareTo(BigDecimal.ZERO) < 0 || maxPrice.compareTo(BigDecimal.ZERO) < 0 || minPrice.compareTo(maxPrice) > 0) {
             throw new IllegalArgumentException("Faixa de preço inválida.");
         }
@@ -114,7 +114,7 @@ public class FoodRepositoryArrayList implements IFoodRepository {
     }
 
     @Override
-    public List<Food> findByNotAvailable() throws IllegalArgumentException, NoSuchElementException {
+    public List<Food> findByAvailableFalse() throws IllegalArgumentException, NoSuchElementException {
         List<Food> result = foods.stream()
                 .filter(f -> !f.isAvailable())
                 .collect(Collectors.toList());
@@ -127,7 +127,7 @@ public class FoodRepositoryArrayList implements IFoodRepository {
     }
 
     @Override
-    public List<Food> findByAvailable() throws IllegalArgumentException, NoSuchElementException {
+    public List<Food> findByAvailableTrue() throws IllegalArgumentException, NoSuchElementException {
         List<Food> result = foods.stream()
                 .filter(Food::isAvailable)
                 .collect(Collectors.toList());

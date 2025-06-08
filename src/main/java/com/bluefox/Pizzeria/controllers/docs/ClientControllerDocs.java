@@ -10,12 +10,12 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-public interface UserControllerDocs {
+public interface ClientControllerDocs {
     @Operation(
-            summary = "Buscar usuário por ID",
-            description = "Retorna um usuário específico com base no ID fornecido. " +
-                    "Se o ID não for válido ou o usuário não for encontrado, retorna um erro.",
-            tags = {"Users"},
+            summary = "Buscar cliente por ID",
+            description = "Retorna um cliente específico com base no ID fornecido. " +
+                    "Se o ID não for válido ou o cliente não for encontrado, retorna um erro.",
+            tags = {"Clients"},
             responses = {
                     @ApiResponse(
                             description = "Success",
@@ -59,13 +59,13 @@ public interface UserControllerDocs {
                     )
             }
     )
-    ResponseEntity<ApiResponses<?>> getUserById(@PathVariable String id);
+    ResponseEntity<ApiResponses<?>> getClientById(@PathVariable String id);
 
     @Operation(
-            summary = "Criar um novo usuário",
-            description = "Cria um novo usuário com os dados fornecidos. " +
+            summary = "Criar um novo cliente",
+            description = "Cria um novo cliente com os dados fornecidos. " +
                     "Se os dados forem inválidos, retorna um erro.",
-            tags = {"Users"},
+            tags = {"Clients"},
             responses = {
                     @ApiResponse(
                             description = "Success",
@@ -99,13 +99,12 @@ public interface UserControllerDocs {
                     )
             }
     )
-    ResponseEntity<ApiResponses<?>> createUser(@RequestBody CreateClientDTO dto);
+    ResponseEntity<ApiResponses<?>> createClient(@RequestBody CreateClientDTO dto);
 
     @Operation(
-            summary = "Atualizar usuário",
-            description = "Atualiza os dados de um usuário específico com base no ID fornecido. " +
-                    "Se o ID não for válido ou o usuário não for encontrado, retorna um erro.",
-            tags = {"Users"},
+            summary = "Atualizar cliente",
+            description = "Atualiza os dados de um cliente com base no ID fornecido.",
+            tags = {"Clients"},
             responses = {
                     @ApiResponse(
                             description = "Success",
@@ -139,13 +138,12 @@ public interface UserControllerDocs {
                     )
             }
     )
-    ResponseEntity<ApiResponses<?>> updateUser(@PathVariable String id, @RequestBody UpdateClientDTO dto);
+    ResponseEntity<ApiResponses<?>> updateClient(@PathVariable String id, @RequestBody UpdateClientDTO dto);
 
     @Operation(
-            summary = "Deletar usuário",
-            description = "Deleta um usuário específico com base no ID fornecido. " +
-                    "Se o ID não for válido ou o usuário não for encontrado, retorna um erro.",
-            tags = {"Users"},
+            summary = "Deletar cliente",
+            description = "Remove um cliente com base no ID fornecido.",
+            tags = {"Clients"},
             responses = {
                     @ApiResponse(
                             description = "Success",
@@ -179,13 +177,12 @@ public interface UserControllerDocs {
                     )
             }
     )
-    ResponseEntity<ApiResponses<?>> deleteUser(@PathVariable String id);
+    ResponseEntity<ApiResponses<?>> deleteClient(@PathVariable String id);
 
     @Operation(
-            summary = "Buscar todos os usuários",
-            description = "Retorna uma lista de todos os usuários. " +
-                    "Se não houver usuários, retorna uma lista vazia.",
-            tags = {"Users"},
+            summary = "Listar todos os clientes",
+            description = "Retorna uma lista de todos os clientes cadastrados.",
+            tags = {"Clients"},
             responses = {
                     @ApiResponse(
                             description = "Success",
@@ -204,13 +201,12 @@ public interface UserControllerDocs {
                     )
             }
     )
-    ResponseEntity<ApiResponses<?>> getAllUsers();
+    ResponseEntity<ApiResponses<?>> getAllClients();
 
     @Operation(
-            summary = "Buscar usuário por email",
-            description = "Retorna um usuário específico com base no email fornecido. " +
-                    "Se o email não for válido ou o usuário não for encontrado, retorna um erro.",
-            tags = {"Users"},
+            summary = "Buscar cliente por email",
+            description = "Retorna um cliente com base no email fornecido.",
+            tags = {"Clients"},
             responses = {
                     @ApiResponse(
                             description = "Success",
@@ -244,13 +240,12 @@ public interface UserControllerDocs {
                     )
             }
     )
-    ResponseEntity<ApiResponses<?>> getUserByEmail(@PathVariable String email);
+    ResponseEntity<ApiResponses<?>> getClientByEmail(@PathVariable String email);
 
     @Operation(
-            summary = "Buscar usuário por número de telefone",
-            description = "Retorna um usuário específico com base no número de telefone fornecido. " +
-                    "Se o número de telefone não for válido ou o usuário não for encontrado, retorna um erro.",
-            tags = {"Users"},
+            summary = "Buscar cliente por número de telefone",
+            description = "Retorna um cliente com base no número de telefone fornecido.",
+            tags = {"Clients"},
             responses = {
                     @ApiResponse(
                             description = "Success",
@@ -284,13 +279,12 @@ public interface UserControllerDocs {
                     )
             }
     )
-    ResponseEntity<ApiResponses<?>> getUserByPhoneNumber(@PathVariable String phoneNumber);
+    ResponseEntity<ApiResponses<?>> getClientByPhoneNumber(@PathVariable String phoneNumber);
 
     @Operation(
-            summary = "Buscar usuário por nome",
-            description = "Retorna um usuário específico com base no nome fornecido. " +
-                    "Se o nome não for válido ou o usuário não for encontrado, retorna um erro.",
-            tags = {"Users"},
+            summary = "Buscar cliente por nome",
+            description = "Retorna um cliente com base no nome fornecido.",
+            tags = {"Clients"},
             responses = {
                     @ApiResponse(
                             description = "Success",
@@ -324,45 +318,5 @@ public interface UserControllerDocs {
                     )
             }
     )
-    ResponseEntity<ApiResponses<?>> getUserByName(@PathVariable String name);
-
-    @Operation(
-            summary = "Buscar cliente",
-            description = "Retorna um cliente específico. " +
-                    "Se o cliente não for encontrado, retorna um erro.",
-            tags = {"Users"},
-            responses = {
-                    @ApiResponse(
-                            description = "Success",
-                            responseCode = "200",
-                            content = @Content(schema = @Schema(implementation = ApiResponses.class))
-                    ),
-                    @ApiResponse(
-                            description = "Bad Request",
-                            responseCode = "400",
-                            content = @Content(schema = @Schema(implementation = ApiResponses.class))
-                    ),
-                    @ApiResponse(
-                            description = "Unauthorized",
-                            responseCode = "401",
-                            content = @Content(schema = @Schema(implementation = ApiResponses.class))
-                    ),
-                    @ApiResponse(
-                            description = "Forbidden",
-                            responseCode = "403",
-                            content = @Content(schema = @Schema(implementation = ApiResponses.class))
-                    ),
-                    @ApiResponse(
-                            description = "Not Found",
-                            responseCode = "404",
-                            content = @Content(schema = @Schema(implementation = ApiResponses.class))
-                    ),
-                    @ApiResponse(
-                            description = "Internal Server Error",
-                            responseCode = "500",
-                            content = @Content(schema = @Schema(implementation = ApiResponses.class))
-                    )
-            }
-    )
-    ResponseEntity<ApiResponses<?>> getClient();
+    ResponseEntity<ApiResponses<?>> getClientByName(@PathVariable String name);
 }

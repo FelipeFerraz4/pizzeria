@@ -4,14 +4,9 @@ import com.bluefox.Pizzeria.controllers.docs.OrderControllerDocs;
 import com.bluefox.Pizzeria.dtos.CreateOrderDTO;
 import com.bluefox.Pizzeria.model.order.Order;
 import com.bluefox.Pizzeria.model.people.Client;
+import com.bluefox.Pizzeria.services.ClientService;
 import com.bluefox.Pizzeria.services.OrderService;
-import com.bluefox.Pizzeria.services.UserService;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -25,11 +20,13 @@ import java.util.UUID;
 @Tag(name = "Orders", description = "Endpoints para gerenciamento de pedidos")
 public class OrderController implements OrderControllerDocs {
 
-    @Autowired
-    private OrderService orderService;
+    private final ClientService clientService;
+    private final OrderService orderService;
 
-    @Autowired
-    private UserService userService;
+    public OrderController(ClientService clientService, OrderService orderService) {
+        this.clientService = clientService;
+        this.orderService = orderService;
+    }
 
     @PostMapping
     @Override
@@ -65,9 +62,9 @@ public class OrderController implements OrderControllerDocs {
     @Override
     public ResponseEntity<ApiResponses<?>> getOrderByClientPhone(@PathVariable String phoneNumber) {
         try {
-            Client client = userService.getUserByPhoneNumber(phoneNumber);
-            Order order = orderService.getOrderByCustomerId(client.getId());
-            return ResponseEntity.ok(ApiResponses.success(order));
+            Client client = clientService.getClientsByPhoneNumber(phoneNumber);
+            List<Order> orders = orderService.getOrdersByClientId(client.getId());
+            return ResponseEntity.ok(ApiResponses.successWithCount(orders, orders.size()));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(ApiResponses.error("Nome inválido"));
         } catch (NoSuchElementException e) {
@@ -93,8 +90,8 @@ public class OrderController implements OrderControllerDocs {
     public ResponseEntity<ApiResponses<?>> getOrdersByClientId(@PathVariable String id) {
         try {
             UUID uuid = UUID.fromString(id);
-            Order orders = orderService.getOrderByCustomerId(uuid);
-            return ResponseEntity.ok(ApiResponses.success(orders));
+            List<Order> orders = orderService.getOrdersByClientId(uuid);
+            return ResponseEntity.ok(ApiResponses.successWithCount(orders, orders.size()));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(ApiResponses.error("ID inválido"));
         } catch (NoSuchElementException e) {
@@ -123,8 +120,8 @@ public class OrderController implements OrderControllerDocs {
     @Override
     public ResponseEntity<ApiResponses<?>> getOrdersByDeliveryAddress(@PathVariable String address) {
         try {
-            Order order = orderService.getOrderByDeliveryAddress(address);
-            return ResponseEntity.ok(ApiResponses.success(order));
+            List<Order> orders = orderService.getOrdersByDeliveryAddress(address);
+            return ResponseEntity.ok(ApiResponses.successWithCount(orders, orders.size()));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(ApiResponses.error("Endereço inválido"));
         } catch (NoSuchElementException e) {

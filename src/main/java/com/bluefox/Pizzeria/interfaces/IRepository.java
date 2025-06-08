@@ -6,7 +6,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface IRepository<T> {
-    T save(T object) throws IllegalArgumentException, IllegalStateException;
+    Optional<T> save(T object) throws IllegalArgumentException, IllegalStateException;
     Optional<T> findById(UUID id) throws IllegalArgumentException;
     void updateById(T object) throws IllegalArgumentException, NoSuchElementException;
     void deleteByID(UUID id) throws IllegalArgumentException, NoSuchElementException;
