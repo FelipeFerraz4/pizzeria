@@ -16,7 +16,7 @@ import java.util.List;
 @ToString(callSuper = true)
 @SuperBuilder
 @Entity
-@Table(name = "pizza")
+@Table(name = "pizzas")
 public class Pizza extends Food {
 
     @Enumerated(EnumType.STRING)
