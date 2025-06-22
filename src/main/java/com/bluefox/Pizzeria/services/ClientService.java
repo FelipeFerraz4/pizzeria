@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.UUID;
@@ -31,7 +32,13 @@ public class ClientService {
                 .email(dto.email())
                 .password(dto.password())
                 .address(dto.address())
+                .notes(dto.notes())
                 .birthday(dto.birthday())
+                .role("client")
+                .active(true)
+                .loyaltyPoints(0)
+                .vip(false)
+                .accountCreationDate(LocalDateTime.now())
                 .build();
 
         return repository.saveAndFlush(client);

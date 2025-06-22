@@ -1,6 +1,7 @@
 package com.bluefox.Pizzeria.model.people;
 
 import com.bluefox.Pizzeria.model.order.Order;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.OneToMany;
@@ -31,6 +32,7 @@ public class Client extends Person {
     private LocalDateTime dateLastPurchase;
 
     @OneToMany(mappedBy = "client", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
     @Builder.Default
     private List<Order> orders = new ArrayList<>();
 

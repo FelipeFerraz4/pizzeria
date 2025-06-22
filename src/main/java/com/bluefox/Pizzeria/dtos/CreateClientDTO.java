@@ -8,5 +8,6 @@ public record CreateClientDTO(
         String email,
         String password,
         String address,
+        String notes,
         LocalDate birthday
 ){}
