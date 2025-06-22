@@ -90,7 +90,7 @@ public class ClientService {
     }
 
     public List<Client> getClientsByName(String name) {
-        return repository.findByNameIgnoreCase(name);
+        return repository.findByNameContainingIgnoreCase(name);
     }
 
     public List<Client> getAllClients() {

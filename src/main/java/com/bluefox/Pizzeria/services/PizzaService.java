@@ -70,11 +70,12 @@ public class PizzaService {
     }
 
     public void deletePizzaById(UUID id) throws IllegalArgumentException, NoSuchElementException {
-        if (!repository.existsById(id)) {
-            throw new NoSuchElementException("Pizza with ID '" + id + "' not found.");
-        }
+        Pizza pizza = repository.findById(id)
+                .orElseThrow(() -> new NoSuchElementException("Pizza with ID '" + id + "' not found."));
 
-        repository.deleteById(id);
+        pizza.setAvailable(false);
+
+        repository.saveAndFlush(pizza);
     }
 
     public List<Pizza> getAllPizza() {
@@ -85,7 +86,7 @@ public class PizzaService {
         if (name == null || name.isBlank()) {
             throw new IllegalArgumentException("Name cannot be null or empty.");
         }
-        return repository.findByNameIgnoreCase(name);
+        return repository.findByNameContainingIgnoreCase(name);
     }
 
     public List<Pizza> getPizzas() {

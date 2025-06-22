@@ -22,7 +22,7 @@ public class Pizza extends Food {
     @Enumerated(EnumType.STRING)
     private Size size;
 
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "pizza_ingredient", joinColumns = @JoinColumn(name = "pizza_id"))
     @Column(name = "ingredient")
     private List<String> ingredients = new ArrayList<>();

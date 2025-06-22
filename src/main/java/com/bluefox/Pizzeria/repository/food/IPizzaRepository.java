@@ -11,7 +11,7 @@ import java.util.UUID;
 @Repository("pizzaRepositoryJPA")
 public interface IPizzaRepository extends JpaRepository<Pizza, UUID> {
 
-    List<Pizza> findByNameIgnoreCase(String name);
+    List<Pizza> findByNameContainingIgnoreCase(String name);
 
     List<Pizza> findByPriceBetween(BigDecimal minPrice, BigDecimal maxPrice);
 

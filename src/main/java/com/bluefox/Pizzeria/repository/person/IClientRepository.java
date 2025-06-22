@@ -15,5 +15,5 @@ public interface IClientRepository extends JpaRepository<Client, UUID> {
 
     Optional<Client> findByPhoneNumber(String phoneNumber);
 
-    List<Client> findByNameIgnoreCase(String name);
+    List<Client> findByNameContainingIgnoreCase(String name);
 }
